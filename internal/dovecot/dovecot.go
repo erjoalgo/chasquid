@@ -262,8 +262,11 @@ func (a *Auth) getAddrs() (string, string, error) {
 	if a.addr.userdb == "" {
 		for _, u := range defaultUserdbPaths {
 			if a.canDial(u) {
+				fmt.Printf("DDEBUG dovecot.go 2khf, u: %+v\n", u)
 				a.addr.userdb = u
 				break
+			} else  {
+				fmt.Printf("DDEBUG dovecot.go ilsi, u: %+v\n", u)
 			}
 		}
 		if a.addr.userdb == "" {
@@ -274,8 +277,11 @@ func (a *Auth) getAddrs() (string, string, error) {
 	if a.addr.client == "" {
 		for _, c := range defaultClientPaths {
 			if a.canDial(c) {
+				fmt.Printf("DDEBUG dovecot.go dprm, c: %+v\n", c)
 				a.addr.client = c
 				break
+			} else  {
+				fmt.Printf("DDEBUG dovecot.go mv2m, c: %+v\n", c)
 			}
 		}
 		if a.addr.client == "" {

@@ -85,7 +85,10 @@ func main() {
 	s.SetAliasesConfig(*conf.SuffixSeparators, *conf.DropCharacters)
 
 	if conf.DovecotAuth {
+		fmt.Println("DDEBUG TRACE chasquid.go,  f7zs")
 		loadDovecot(s, conf.DovecotUserdbPath, conf.DovecotClientPath)
+	} else  {
+		fmt.Println("DDEBUG TRACE chasquid.go,  tcro")
 	}
 
 	// Load certificates from "certs/<directory>/{fullchain,privkey}.pem".

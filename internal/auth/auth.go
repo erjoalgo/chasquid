@@ -62,6 +62,7 @@ func NewAuthenticator() *Authenticator {
 
 // Register a backend to use for the given domain.
 func (a *Authenticator) Register(domain string, be Backend) {
+	fmt.Printf("adding backend %s for domain %s\n", domain, be.Name())
 	a.backends[domain] = append(a.backends[domain], be)
 }
 
@@ -90,6 +91,7 @@ func (a *Authenticator) Authenticate(tr *trace.Trace, user, domain, password str
 		ok, err := be.Authenticate(user, password)
 		tr.Debugf("Backend: %v %v", ok, err)
 		if ok || err != nil {
+			fmt.Println("DDEBUG TRACE auth.go,  cmdx")
 			return ok, err
 		}
 	}
@@ -100,6 +102,7 @@ func (a *Authenticator) Authenticate(tr *trace.Trace, user, domain, password str
 		if domain != "" {
 			id = user + "@" + domain
 		}
+		fmt.Printf("DDEBUG auth.go, id: %+v\n",id)
 		ok, err := a.Fallback.Authenticate(id, password)
 		tr.Debugf("Fallback: %v %v", ok, err)
 		return ok, err
