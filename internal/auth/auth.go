@@ -38,7 +38,7 @@ type NoErrorBackend interface {
 type Authenticator struct {
 	// Registered backends, map of domain (string) -> Backend.
 	// Backend operations will _not_ include the domain in the username.
-	backends map[string]Backend
+	backends map[string][]Backend
 
 	// Fallback backend, to use when backends[domain] (which may not exist)
 	// did not yield a positive result.
@@ -55,14 +55,14 @@ type Authenticator struct {
 // NewAuthenticator returns a new Authenticator with no backends.
 func NewAuthenticator() *Authenticator {
 	return &Authenticator{
-		backends:     map[string]Backend{},
+		backends:     map[string][]Backend{},
 		AuthDuration: 100 * time.Millisecond,
 	}
 }
 
 // Register a backend to use for the given domain.
 func (a *Authenticator) Register(domain string, be Backend) {
-	a.backends[domain] = be
+	a.backends[domain] = append(a.backends[domain], be)
 }
 
 // Authenticate the user@domain with the given password.
@@ -85,7 +85,7 @@ func (a *Authenticator) Authenticate(tr *trace.Trace, user, domain, password str
 		}
 	}(time.Now())
 
-	if be, ok := a.backends[domain]; ok {
+	for _, be := range a.backends[domain] {
 		fmt.Printf("DDEBUG auth.go, be.Name(): %+v\n",be.Name())
 		ok, err := be.Authenticate(user, password)
 		tr.Debugf("Backend: %v %v", ok, err)
@@ -114,7 +114,7 @@ func (a *Authenticator) Exists(tr *trace.Trace, user, domain string) (bool, erro
 	tr = tr.NewChild("Auth.Exists", user+"@"+domain)
 	defer tr.Finish()
 
-	if be, ok := a.backends[domain]; ok {
+	for _, be := range a.backends[domain] {
 		ok, err := be.Exists(user)
 		tr.Debugf("Backend: %v %v", ok, err)
 		if ok || err != nil {
@@ -140,12 +140,14 @@ func (a *Authenticator) Exists(tr *trace.Trace, user, domain string) (bool, erro
 func (a *Authenticator) Reload() error {
 	msgs := []string{}
 
-	for domain, be := range a.backends {
+	for domain, bes := range a.backends {
 		tr := trace.New("Auth.Reload", domain)
-		err := be.Reload()
-		if err != nil {
-			tr.Error(err)
-			msgs = append(msgs, fmt.Sprintf("%q: %v", domain, err))
+		for _, be := range bes {
+			err := be.Reload()
+			if err != nil {
+				tr.Error(err)
+				msgs = append(msgs, fmt.Sprintf("%q: %v", domain, err))
+			}
 		}
 		tr.Finish()
 	}
