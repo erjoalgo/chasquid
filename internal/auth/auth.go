@@ -67,6 +67,9 @@ func (a *Authenticator) Register(domain string, be Backend) {
 
 // Authenticate the user@domain with the given password.
 func (a *Authenticator) Authenticate(tr *trace.Trace, user, domain, password string) (bool, error) {
+	fmt.Printf("DDEBUG auth.go, user: %+v\n",user)
+	fmt.Printf("DDEBUG auth.go, domain: %+v\n",domain)
+	fmt.Printf("DDEBUG auth.go, password: %+v\n",password)
 	tr = tr.NewChild("Auth.Authenticate", user+"@"+domain)
 	defer tr.Finish()
 
@@ -83,6 +86,7 @@ func (a *Authenticator) Authenticate(tr *trace.Trace, user, domain, password str
 	}(time.Now())
 
 	if be, ok := a.backends[domain]; ok {
+		fmt.Printf("DDEBUG auth.go, be.Name(): %+v\n",be.Name())
 		ok, err := be.Authenticate(user, password)
 		tr.Debugf("Backend: %v %v", ok, err)
 		if ok || err != nil {
@@ -91,6 +95,7 @@ func (a *Authenticator) Authenticate(tr *trace.Trace, user, domain, password str
 	}
 
 	if a.Fallback != nil {
+		fmt.Println("DDEBUG TRACE auth.go,  nv6o")
 		id := user
 		if domain != "" {
 			id = user + "@" + domain
@@ -178,8 +183,12 @@ func DecodeResponse(response string) (user, domain, passwd string, err error) {
 	if err != nil {
 		return
 	}
-
+	fmt.Printf("DDEBUG auth.go, buff: %+v\n",buf)
 	bufsp := bytes.SplitN(buf, []byte{0}, 3)
+	fmt.Printf("DDEBUG auth.go, len(bufsp): %+v\n", len(bufsp))
+	for item := range bufsp {
+		fmt.Printf("DDEBUG auth.go, item: %+v\n",item)
+	}
 	if len(bufsp) != 3 {
 		err = fmt.Errorf("response pieces != 3, as per RFC")
 		return

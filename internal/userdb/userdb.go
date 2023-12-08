@@ -62,6 +62,7 @@ func New(fname string) *DB {
 // Return the database, and a fatal error if the database could not be
 // loaded.
 func Load(fname string) (*DB, error) {
+	fmt.Printf("DDEBUG userdb.go, fname: %+v\n",fname)
 	db := New(fname)
 	err := protoio.ReadTextMessage(fname, db.db)
 
@@ -79,8 +80,10 @@ func Load(fname string) (*DB, error) {
 // If there are errors reading from the file, they are returned and the
 // database is not changed.
 func (db *DB) Reload() error {
+	fmt.Printf("DDEBUG userdb.go, db.fname: %+v\n",db.fname)
 	newdb, err := Load(db.fname)
 	if err != nil {
+		fmt.Printf("DDEBUG userdb.go, err: %+v\n",err)
 		return err
 	}
 
@@ -103,8 +106,19 @@ func (db *DB) Write() error {
 // Authenticate returns true if the password is valid for the user, false
 // otherwise.
 func (db *DB) Authenticate(name, plainPassword string) bool {
+	fmt.Printf("DDEBUG userdb.go, name: %+v\n",name)
+	fmt.Printf("DDEBUG userdb.go, plainPassword: %+v\n",
+		plainPassword)
 	db.mu.RLock()
+	fmt.Printf("DDEBUG userdb.go, len(db.db.Users): %+v\n",
+		len(db.db.Users))
+	for user, _ := range db.db.Users {
+		fmt.Printf("DDEBUG userdb.go, user: %+v\n",user)
+	}
 	passwd, ok := db.db.Users[name]
+	fmt.Printf("DDEBUG userdb.go, passwd: %+v\n",passwd)
+	fmt.Printf("DDEBUG userdb.go, plainPassword: %+v\n",
+		plainPassword)
 	db.mu.RUnlock()
 
 	if !ok {
@@ -124,8 +138,10 @@ func (p *Password) PasswordMatches(plain string) bool {
 	case nil:
 		return false
 	case *Password_Scrypt:
+		fmt.Println("DDEBUG TRACE userdb.go, chgx")
 		return s.Scrypt.PasswordMatches(plain)
 	case *Password_Plain:
+		fmt.Println("DDEBUG TRACE userdb.go, dpv8")
 		return s.Plain.PasswordMatches(plain)
 	default:
 		return false
@@ -196,6 +212,7 @@ func (db *DB) Exists(name string) bool {
 // to happen. Consider doing so when we add another scheme, so we a least have
 // two and multi-scheme support does not bit-rot.
 func (p *Plain) PasswordMatches(plain string) bool {
+	fmt.Printf("DDEBUG userdb.go, p.Password: %+v\n",p.Password)
 	return plain == string(p.Password)
 }
 
@@ -205,6 +222,8 @@ func (s *Scrypt) PasswordMatches(plain string) bool {
 	dk, err := scrypt.Key([]byte(plain), s.Salt,
 		1<<s.LogN, int(s.R), int(s.P), int(s.KeyLen))
 
+	fmt.Printf("DDEBUG userdb.go, dk: %+v\n",dk)
+	fmt.Printf("DDEBUG userdb.go, s.Encrypted: %+v\n",s.Encrypted)
 	if err != nil {
 		// The encryption failed, this is due to the parameters being invalid.
 		// We validated them before, so something went really wrong.
