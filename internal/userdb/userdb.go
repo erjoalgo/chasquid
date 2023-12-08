@@ -114,6 +114,10 @@ func (db *DB) Authenticate(name, plainPassword string) bool {
 	return passwd.PasswordMatches(plainPassword)
 }
 
+func (db *DB) Name() string {
+	return "UserDB"
+}
+
 // PasswordMatches returns true if the given password is a match.
 func (p *Password) PasswordMatches(plain string) bool {
 	switch s := p.Scheme.(type) {

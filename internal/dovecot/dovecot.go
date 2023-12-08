@@ -207,6 +207,10 @@ func (a *Auth) Reload() error {
 	return nil
 }
 
+func (a *Auth) Name() string {
+	return "dovecot"
+}
+
 func (a *Auth) dial(network, addr string) (*textproto.Conn, error) {
 	nc, err := net.DialTimeout(network, addr, a.Timeout)
 	if err != nil {

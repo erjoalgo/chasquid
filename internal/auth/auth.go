@@ -19,6 +19,7 @@ type Backend interface {
 	Authenticate(user, password string) (bool, error)
 	Exists(user string) (bool, error)
 	Reload() error
+	Name() string
 }
 
 // NoErrorBackend is the interface for authentication backends that don't need
@@ -257,4 +258,8 @@ func (w *wrapNoErrorBackend) Exists(user string) (bool, error) {
 
 func (w *wrapNoErrorBackend) Reload() error {
 	return w.be.Reload()
+}
+
+func (w *wrapNoErrorBackend) Name() string {
+	return "wrapNoErrorBackend";
 }
