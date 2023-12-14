@@ -25,7 +25,7 @@ var (
 
 	// Port for outgoing SMTP.
 	// Tests can override this.
-	smtpPort = flag.String("testing__outgoing_smtp_port", "25",
+	smtpPort = flag.String("testing__outgoing_smtp_port", "587",
 		"port to use for outgoing SMTP connections, ONLY FOR TESTING")
 
 	// Allow overriding of net.LookupMX for testing purposes.
