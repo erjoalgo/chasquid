@@ -7,7 +7,7 @@ cd "$(realpath $(dirname "${BASH_SOURCE[0]}"))"
 go build
 
 ROOT=$(pwd)/etc-chasquid-test
-DOMAIN=example.com
+DOMAIN=localhost
 
 # rm -rf ${ROOT}/certs
 DOMAIN=erjoalgo.com
