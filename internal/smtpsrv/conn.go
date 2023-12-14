@@ -145,7 +145,8 @@ type Conn struct {
 	dinfo        *domaininfo.DB
 
 	// Have we successfully completed AUTH?
-	completedAuth bool
+	completedAuth      bool
+	nonExistentAddress bool
 
 	// Authenticated user and domain, empty if !completedAuth.
 	authUser   string
@@ -602,7 +603,8 @@ func (c *Conn) RCPT(params string) (code int, msg string) {
 		if !ok {
 			maillog.Rejected(c.remoteAddr, c.mailFrom, []string{addr},
 				"local user does not exist")
-			return 550, "5.1.1 Destination address is unknown (user does not exist)"
+			// return 550, "5.1.1 Destination address is unknown (user does not exist)"
+			c.nonExistentAddress = true
 		}
 	}
 
@@ -656,6 +658,15 @@ func (c *Conn) DATA(params string) (code int, msg string) {
 	}
 
 	c.tr.Debugf("-> ... %d bytes of data", len(c.data))
+
+	if c.nonExistentAddress {
+		fmt.Printf("DDEBUG conn.go lasg, c.mailFrom: %+v\n",
+			c.mailFrom)
+		fmt.Printf("DDEBUG conn.go mu4b, c.rcptTo: %+v\n",
+			c.rcptTo)
+		fmt.Printf("DDEBUG conn.go ch57, c.data: %+v\n", string(c.data[:]))
+		return 550, "5.1.1 Destination address is unknown (user does not exist)"
+	}
 
 	if err := checkData(c.data); err != nil {
 		maillog.Rejected(c.remoteAddr, c.mailFrom, c.rcptTo, err.Error())
