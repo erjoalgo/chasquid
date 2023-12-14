@@ -1091,8 +1091,8 @@ func (c *Conn) AUTH(params string) (code int, msg string) {
 		plain = append(plain, user...)
 		plain = append(plain, '\000')
 		plain = append(plain, pass...)
-		fmt.Printf("DDEBUG conn.go, user: %+v\n",user)
-		fmt.Printf("DDEBUG conn.go, pass: %+v\n",pass)
+		fmt.Printf("DDEBUG conn.go, user: %+v\n", user)
+		fmt.Printf("DDEBUG conn.go, pass: %+v\n", pass)
 		response = base64.StdEncoding.EncodeToString(plain)
 	} else {
 		// Reply 334 and expect the user to provide it.
@@ -1111,9 +1111,9 @@ func (c *Conn) AUTH(params string) (code int, msg string) {
 	}
 
 	user, domain, passwd, err := auth.DecodeResponse(response)
-	fmt.Printf("DDEBUG conn.go, user: %+v\n",user)
-	fmt.Printf("DDEBUG conn.go, domain: %+v\n",domain)
-	fmt.Printf("DDEBUG conn.go, passwd: %+v\n",passwd)
+	fmt.Printf("DDEBUG conn.go, user: %+v\n", user)
+	fmt.Printf("DDEBUG conn.go, domain: %+v\n", domain)
+	fmt.Printf("DDEBUG conn.go, passwd: %+v\n", passwd)
 	if err != nil {
 		// https://tools.ietf.org/html/rfc4954#section-4
 		return 501, fmt.Sprintf("5.5.2 Error decoding AUTH response: %v", err)
